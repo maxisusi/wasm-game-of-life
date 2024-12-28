@@ -24,6 +24,7 @@
               cargo
               nodejs
               lld
+              just
             ];
             RUST_SRC_PATH = rustPlatform.rustLibSrc;
           };
