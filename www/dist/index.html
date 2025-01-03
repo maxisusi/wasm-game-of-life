@@ -10,11 +10,34 @@
       margin: 0;
       overflow: hidden;
     }
+
+    #info {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: white;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      gap: 8px;
+      flex-direction: column;
+    }
   </style>
   <body>
     <!-- <button id="tick">Tick</button> -->
     <!-- <pre id="game-of-life-canvas"></pre> -->
-    <canvas height="100%" width="100%" id="game-canvas"></canvas>
+
+    <div id="info">
+      <div>Client Position: <span id="mouse-position"></span></div>
+      <div>Start Drag: <span id="drag-start">NULL</span></div>
+      <div>Line magniture: <span id="magnitude">NULL</span></div>
+    </div>
+    <canvas
+      draggable="true"
+      height="100%"
+      width="100%"
+      id="game-canvas"
+    ></canvas>
     <noscript
       >This page contains webassembly and javascript content, please enable
       javascript in your browser.</noscript
