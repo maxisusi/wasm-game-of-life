@@ -1,4 +1,5 @@
 import init from "wasm-test";
+import { Block, Vector2d } from "./vector";
 
 await init();
 
@@ -11,7 +12,6 @@ const $mousePosition = document.getElementById("mouse-position");
 const $dragStart = document.getElementById("drag-start");
 const $magnitude = document.getElementById("magnitude");
 const $displacement = document.getElementById("displacement-vector");
-const $dbgBlock = document.getElementById("debug-block");
 const $zoom = document.getElementById("zoom");
 
 if (!canvas) {
@@ -30,43 +30,33 @@ if (!ctx) {
   throw new Error("2D Context not supported from this browser");
 }
 
-let dragStart: number[] = [];
-let initialBlockPosition = [100, 100];
-let currentBlockPosition = [...initialBlockPosition];
+let dragStart = new Vector2d(0, 0);
+const block = new Block(100, 100, 50, 50, ctx);
+
 let zoom = 1;
 
 const render = (x?: number, y?: number) => {
   // Draw background
   ctx.fillStyle = "#2e242c";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   if (x && y) drawLine(x, y);
-
-  ctx.fillStyle = "#777";
-  ctx.fillRect(
-    currentBlockPosition[0],
-    currentBlockPosition[1],
-    50 * zoom,
-    50 * zoom,
-  );
+  block.draw();
 };
 
 const drawLine = (x: number, y: number) => {
-  if (dragStart.length !== 0) {
-    ctx.fillStyle = "#777";
-    ctx.fillRect(dragStart[0] - 5, dragStart[1] - 5, 10, 10);
-    $dragStart!.innerHTML = `X: ${dragStart[0]} | Y: ${dragStart[1]}`;
+  const bPos = dragStart.sub(5);
+  new Block(bPos.x, bPos.y, 10, 10, ctx).draw();
 
-    ctx.beginPath();
-    ctx.strokeStyle = "#777";
-    ctx.moveTo(dragStart[0], dragStart[1]);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  }
+  $dragStart!.innerHTML = `X: ${dragStart.x} | Y: ${dragStart.y}`;
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#777";
+  ctx.moveTo(dragStart.x, dragStart.y);
+  ctx.lineTo(x, y);
+  ctx.stroke();
 };
 
 render();
-$dbgBlock!.innerHTML = `X: ${currentBlockPosition[0]} | Y: ${currentBlockPosition[1]}`;
 $zoom!.innerHTML = `${zoom}x`;
 
 canvas.addEventListener("wheel", (event) => {
@@ -74,9 +64,7 @@ canvas.addEventListener("wheel", (event) => {
   else if (zoom > 1) {
     zoom -= 1;
   }
-
   $zoom!.innerHTML = `${zoom}x`;
-
   render();
 });
 canvas.addEventListener("mousemove", (event) => {
@@ -86,42 +74,33 @@ canvas.addEventListener("mousemove", (event) => {
 canvas.addEventListener("dragover", (event) => {
   const { clientX, clientY } = event;
 
-  const magnitude = Math.sqrt(
-    Math.pow(clientX - dragStart[0], 2) + Math.pow(clientY - dragStart[1], 2),
-  );
-
-  const displacement = [clientX - dragStart[0], clientY - dragStart[1]];
+  const client = new Vector2d(clientX, clientY);
+  const magnitude = client.sub(dragStart).magnitude();
+  const displacement = client.sub(dragStart);
 
   $magnitude!.innerHTML = `${magnitude}`;
   $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
-  $displacement!.innerHTML = `X: ${displacement[0]} | Y: ${displacement[1]}`;
-  $dbgBlock!.innerHTML = `X: ${currentBlockPosition[0].toFixed(2)} | Y: ${currentBlockPosition[1].toFixed(2)}`;
+  $displacement!.innerHTML = `X: ${displacement.x} | Y: ${displacement.y}`;
 
-  currentBlockPosition = [
-    initialBlockPosition[0] + displacement[0],
-    initialBlockPosition[1] + displacement[1],
-  ];
+  block.updatePosition(block.transform.initialPosition.add(displacement));
 
   render(clientX, clientY);
 });
 
-canvas.addEventListener("dragend", (event) => {
-  // const { clientX, clientY } = event;
+canvas.addEventListener("dragend", () => {
+  dragStart = new Vector2d(0, 0);
 
-  dragStart = [];
-  initialBlockPosition = currentBlockPosition;
+  block.resetInitialPosition();
 
   $magnitude!.innerHTML = `NULL`;
   $dragStart!.innerHTML = `NULL`;
   $displacement!.innerHTML = `NULL`;
 
-  $dbgBlock!.innerHTML = `X: ${currentBlockPosition[0].toFixed(2)} | Y: ${currentBlockPosition[1].toFixed(2)}`;
-
   render();
 });
 
 canvas.addEventListener("dragstart", (event) => {
-  dragStart = [event.clientX, event.clientY];
+  dragStart = new Vector2d(event.clientX, event.clientY);
 
   const img = new Image();
   img.src =
