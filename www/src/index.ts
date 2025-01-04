@@ -12,6 +12,7 @@ const $dragStart = document.getElementById("drag-start");
 const $magnitude = document.getElementById("magnitude");
 const $displacement = document.getElementById("displacement-vector");
 const $dbgBlock = document.getElementById("debug-block");
+const $zoom = document.getElementById("zoom");
 
 if (!canvas) {
   throw new Error("Game canvas undefined");
@@ -32,6 +33,7 @@ if (!ctx) {
 let dragStart: number[] = [];
 let initialBlockPosition = [100, 100];
 let currentBlockPosition = [...initialBlockPosition];
+let zoom = 1;
 
 const render = (x?: number, y?: number) => {
   // Draw background
@@ -41,7 +43,12 @@ const render = (x?: number, y?: number) => {
   if (x && y) drawLine(x, y);
 
   ctx.fillStyle = "#777";
-  ctx.fillRect(currentBlockPosition[0], currentBlockPosition[1], 50, 50);
+  ctx.fillRect(
+    currentBlockPosition[0],
+    currentBlockPosition[1],
+    50 * zoom,
+    50 * zoom,
+  );
 };
 
 const drawLine = (x: number, y: number) => {
@@ -60,7 +67,18 @@ const drawLine = (x: number, y: number) => {
 
 render();
 $dbgBlock!.innerHTML = `X: ${currentBlockPosition[0]} | Y: ${currentBlockPosition[1]}`;
+$zoom!.innerHTML = `${zoom}x`;
 
+canvas.addEventListener("wheel", (event) => {
+  if (event.deltaY <= 0) zoom += 1;
+  else if (zoom > 1) {
+    zoom -= 1;
+  }
+
+  $zoom!.innerHTML = `${zoom}x`;
+
+  render();
+});
 canvas.addEventListener("mousemove", (event) => {
   $mousePosition!.innerHTML = `Client X: ${event.clientX} | Client Y: ${event.clientY}`;
 });
@@ -84,7 +102,7 @@ canvas.addEventListener("dragover", (event) => {
     initialBlockPosition[1] + displacement[1],
   ];
 
-  render();
+  render(clientX, clientY);
 });
 
 canvas.addEventListener("dragend", (event) => {
