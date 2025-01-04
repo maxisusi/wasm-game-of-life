@@ -31,7 +31,10 @@ if (!ctx) {
 }
 
 let dragStart = new Vector2d(0, 0);
-const block = new Block(100, 100, 50, 50, ctx);
+
+const blockList = Array.from({ length: 8 }).map(
+  (_, i) => new Block(200 * (i + 1), 100, 50, 50, ctx),
+);
 
 let zoom = 1;
 
@@ -39,8 +42,11 @@ const render = (x?: number, y?: number) => {
   // Draw background
   ctx.fillStyle = "#2e242c";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  if (x && y) drawLine(x, y);
-  block.draw();
+  if (x && y && !dragStart.isOrigin()) drawLine(x, y);
+
+  blockList.forEach((e) => e.draw());
+
+  // Draw lines from block to mouse
 };
 
 const drawLine = (x: number, y: number) => {
@@ -65,10 +71,14 @@ canvas.addEventListener("wheel", (event) => {
     zoom -= 1;
   }
   $zoom!.innerHTML = `${zoom}x`;
-  render();
+  render(event.clientX, event.clientY);
 });
 canvas.addEventListener("mousemove", (event) => {
   $mousePosition!.innerHTML = `Client X: ${event.clientX} | Client Y: ${event.clientY}`;
+
+  const { clientX, clientY } = event;
+
+  render();
 });
 
 canvas.addEventListener("dragover", (event) => {
@@ -82,7 +92,9 @@ canvas.addEventListener("dragover", (event) => {
   $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
   $displacement!.innerHTML = `X: ${displacement.x} | Y: ${displacement.y}`;
 
-  block.updatePosition(block.transform.initialPosition.add(displacement));
+  blockList.forEach((block) =>
+    block.updatePosition(block.transform.initialPosition.add(displacement)),
+  );
 
   render(clientX, clientY);
 });
@@ -90,7 +102,7 @@ canvas.addEventListener("dragover", (event) => {
 canvas.addEventListener("dragend", () => {
   dragStart = new Vector2d(0, 0);
 
-  block.resetInitialPosition();
+  blockList.forEach((block) => block.resetInitialPosition());
 
   $magnitude!.innerHTML = `NULL`;
   $dragStart!.innerHTML = `NULL`;

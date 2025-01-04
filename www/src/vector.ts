@@ -18,6 +18,12 @@ export class Vector2d {
     else return new Vector2d(this.x + value, this.y + value);
   }
 
+  mul(value: Vector2d | number): Vector2d {
+    if (value instanceof Vector2d)
+      return new Vector2d(this.x * value.x, this.y * value.y);
+    else return new Vector2d(this.x * value, this.y * value);
+  }
+
   sub(value: Vector2d | number): Vector2d {
     if (value instanceof Vector2d)
       return new Vector2d(this.x - value.x, this.y - value.y);
@@ -36,6 +42,11 @@ export class Vector2d {
 
   normalized(): Vector2d {
     return this.div(this.magnitude());
+  }
+
+  isOrigin(): boolean {
+    if (this.x === 0 && this.y === 0) return true;
+    else return false;
   }
 }
 
@@ -56,7 +67,7 @@ export abstract class EntityElement {
     };
   }
 
-  draw(): void {}
+  draw(zoom: number, clientX: number, clientY: number): void {}
 
   updatePosition(newPosition: Vector2d): void {
     this.transform = {
@@ -75,8 +86,8 @@ export abstract class EntityElement {
 
 export class Block extends EntityElement {
   private color = "#777";
-  private width: number;
-  private height: number;
+  width: number;
+  height: number;
 
   constructor(
     x: number,
@@ -93,6 +104,7 @@ export class Block extends EntityElement {
 
   draw() {
     this.ctx.fillStyle = this.color;
+
     this.ctx.fillRect(
       this.transform.position.x,
       this.transform.position.y,
