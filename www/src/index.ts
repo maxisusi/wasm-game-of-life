@@ -9,9 +9,6 @@ const canvas = document.getElementById(
 
 // Debugger
 const $mousePosition = document.getElementById("mouse-position");
-const $dragStart = document.getElementById("drag-start");
-const $magnitude = document.getElementById("magnitude");
-const $displacement = document.getElementById("displacement-vector");
 const $zoom = document.getElementById("zoom");
 
 if (!canvas) {
@@ -30,36 +27,27 @@ if (!ctx) {
   throw new Error("2D Context not supported from this browser");
 }
 
-let dragStart = new Vector2d(0, 0);
-
 const blockList = Array.from({ length: 8 }).map(
   (_, i) => new Block(200 * (i + 1), 100, 50, 50, ctx),
 );
 
 let zoom = 1;
+let dragStart = new Vector2d(0, 0);
+let panOffset = new Vector2d(0, 0);
+let isDragging = false;
 
-const render = (x?: number, y?: number) => {
+const render = () => {
   // Draw background
   ctx.fillStyle = "#2e242c";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  if (x && y && !dragStart.isOrigin()) drawLine(x, y);
+
+  ctx.save();
+  ctx.translate(panOffset.x, panOffset.y);
 
   blockList.forEach((e) => e.draw());
+  ctx.restore();
 
   // Draw lines from block to mouse
-};
-
-const drawLine = (x: number, y: number) => {
-  const bPos = dragStart.sub(5);
-  new Block(bPos.x, bPos.y, 10, 10, ctx).draw();
-
-  $dragStart!.innerHTML = `X: ${dragStart.x} | Y: ${dragStart.y}`;
-
-  ctx.beginPath();
-  ctx.strokeStyle = "#777";
-  ctx.moveTo(dragStart.x, dragStart.y);
-  ctx.lineTo(x, y);
-  ctx.stroke();
 };
 
 render();
@@ -71,51 +59,31 @@ canvas.addEventListener("wheel", (event) => {
     zoom -= 1;
   }
   $zoom!.innerHTML = `${zoom}x`;
-  render(event.clientX, event.clientY);
+  render();
 });
+
 canvas.addEventListener("mousemove", (event) => {
   $mousePosition!.innerHTML = `Client X: ${event.clientX} | Client Y: ${event.clientY}`;
+  if (isDragging) {
+    const { clientX, clientY } = event;
 
-  const { clientX, clientY } = event;
+    const client = new Vector2d(clientX, clientY).sub(panOffset);
+    const offset = client.sub(dragStart);
 
-  render();
+    panOffset = panOffset.add(offset);
+
+    render();
+  }
 });
 
-canvas.addEventListener("dragover", (event) => {
-  const { clientX, clientY } = event;
-
-  const client = new Vector2d(clientX, clientY);
-  const magnitude = client.sub(dragStart).magnitude();
-  const displacement = client.sub(dragStart);
-
-  $magnitude!.innerHTML = `${magnitude}`;
-  $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
-  $displacement!.innerHTML = `X: ${displacement.x} | Y: ${displacement.y}`;
-
-  blockList.forEach((block) =>
-    block.updatePosition(block.transform.initialPosition.add(displacement)),
-  );
-
-  render(clientX, clientY);
-});
-
-canvas.addEventListener("dragend", () => {
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
   dragStart = new Vector2d(0, 0);
 
-  blockList.forEach((block) => block.resetInitialPosition());
-
-  $magnitude!.innerHTML = `NULL`;
-  $dragStart!.innerHTML = `NULL`;
-  $displacement!.innerHTML = `NULL`;
-
   render();
 });
 
-canvas.addEventListener("dragstart", (event) => {
-  dragStart = new Vector2d(event.clientX, event.clientY);
-
-  const img = new Image();
-  img.src =
-    "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
-  event.dataTransfer?.setDragImage(img, 0, 0);
+canvas.addEventListener("mousedown", (event) => {
+  isDragging = true;
+  dragStart = new Vector2d(event.clientX, event.clientY).sub(panOffset);
 });
