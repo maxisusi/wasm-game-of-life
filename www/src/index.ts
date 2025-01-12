@@ -1,7 +1,15 @@
-import init from "wasm-test";
+import init, { Game, Cell } from "wasm-test";
 import { Block, Vector2d } from "./vector";
 
-await init();
+const wasm = await init();
+
+const game = Game.new(8);
+
+// game.tick();
+
+// console.log(wasm.memory.buffer);
+const cells = new Uint8Array(wasm.memory.buffer, game.get_array(), 64);
+// console.log(cells);
 
 const canvas = document.getElementById(
   "game-canvas",
@@ -27,10 +35,6 @@ if (!ctx) {
   throw new Error("2D Context not supported from this browser");
 }
 
-const blockList = Array.from({ length: 8 }).map(
-  (_, i) => new Block(200 * (i + 1), 100, 50, 50, ctx),
-);
-
 let zoom = 1;
 let dragStart = new Vector2d(0, 0);
 let panOffset = new Vector2d(0, 0);
@@ -44,13 +48,30 @@ const render = () => {
   ctx.save();
   ctx.translate(panOffset.x, panOffset.y);
 
+  const blockList = Array.from(cells).map((c, i) => {
+    return new Block(
+      100 * (i + 1),
+      i > 8 ? 200 : 100,
+      50,
+      50,
+      ctx,
+      c === 1 ? "#FFF" : "#000",
+    );
+  });
+
   blockList.forEach((e) => e.draw());
   ctx.restore();
-
-  // Draw lines from block to mouse
 };
 
-render();
+const renderGame = () => {
+  game.tick();
+  render();
+
+  requestAnimationFrame(renderGame);
+};
+
+renderGame();
+
 $zoom!.innerHTML = `${zoom}x`;
 
 canvas.addEventListener("wheel", (event) => {

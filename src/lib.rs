@@ -4,9 +4,10 @@ use wasm_bindgen::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[wasm_bindgen]
+#[repr(u8)]
 pub enum Cell {
-    Alive,
-    Dead,
+    Dead = 0,
+    Alive = 1,
 }
 
 #[wasm_bindgen]
@@ -45,21 +46,6 @@ impl AndProcess<Cell> for Option<Cell> {
     }
 }
 
-impl Default for Game {
-    fn default() -> Self {
-        let mut bd = Vec::with_capacity(64_usize.pow(2));
-
-        for _ in 0..64_usize.pow(2) {
-            bd.push(Cell::Dead);
-        }
-
-        Self {
-            size: 64,
-            board: bd,
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[wasm_bindgen]
 pub struct Mapper {
@@ -81,13 +67,14 @@ impl Game {
     pub fn new(size: usize) -> Self {
         let mut bd = Vec::with_capacity(size.pow(2));
 
-        for _ in 0..=size.pow(2) {
+        for _ in 0..=size.pow(2) - 1 {
             bd.push(Cell::Dead);
         }
 
-        bd[103] = Cell::Alive;
-        bd[104] = Cell::Alive;
-        bd[105] = Cell::Alive;
+        bd[16] = Cell::Alive;
+        bd[17] = Cell::Alive;
+        bd[18] = Cell::Alive;
+
         Self { size, board: bd }
     }
 
@@ -100,6 +87,10 @@ impl Game {
             row: idx.saturating_div(self.size),
             col: idx % self.size,
         }
+    }
+
+    pub fn get_array(&self) -> *const Cell {
+        self.board.as_ptr()
     }
 
     // Returns 0 if the index is out of bounds
