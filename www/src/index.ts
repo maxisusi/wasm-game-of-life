@@ -1,5 +1,6 @@
 import init, { Game } from "wasm-test";
 import { Block, Vector2d } from "./vector";
+import { COLOR_SCHEME } from "./colors";
 
 const canvas = document.getElementById(
   "game-canvas",
@@ -35,7 +36,7 @@ let isDragging = false;
 
 const render = () => {
   // Draw background
-  ctx.fillStyle = "#2e242c";
+  ctx.fillStyle = COLOR_SCHEME.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.save();
@@ -48,7 +49,7 @@ const render = () => {
       50,
       50,
       ctx,
-      c === 1 ? "#FFF" : "#000",
+      c === 1 ? COLOR_SCHEME.cell.alive : COLOR_SCHEME.cell.dead,
     );
   });
 
