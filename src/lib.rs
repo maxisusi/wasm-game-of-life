@@ -4,10 +4,9 @@ use wasm_bindgen::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[wasm_bindgen]
-#[repr(u8)]
 pub enum Cell {
-    Dead = 0,
-    Alive = 1,
+    Dead,
+    Alive,
 }
 
 #[wasm_bindgen]
@@ -124,9 +123,6 @@ impl Game {
                 }
             };
 
-            if idx == 104 {
-                println!("hello")
-            }
             // Left
             self.query(curr_pos.set(0, -1)).and_process(count_neighbour);
             // Top l

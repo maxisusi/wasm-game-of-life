@@ -50,14 +50,14 @@ export class Vector2d {
   }
 }
 
-export interface Transform {
+export interface ITransform {
   initialPosition: Vector2d;
   position: Vector2d;
 }
 
 export abstract class EntityElement {
   protected ctx: CanvasRenderingContext2D;
-  transform: Transform;
+  transform: ITransform;
 
   constructor(position: Vector2d, ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -68,50 +68,4 @@ export abstract class EntityElement {
   }
 
   draw(zoom: number, clientX: number, clientY: number): void {}
-
-  updatePosition(newPosition: Vector2d): void {
-    this.transform = {
-      ...this.transform,
-      position: newPosition,
-    };
-  }
-
-  resetInitialPosition(): void {
-    this.transform = {
-      ...this.transform,
-      initialPosition: this.transform.position,
-    };
-  }
-}
-
-export class Block extends EntityElement {
-  private color = "#777";
-  width: number;
-  height: number;
-
-  constructor(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    ctx: CanvasRenderingContext2D,
-    color?: string,
-  ) {
-    super(new Vector2d(x, y), ctx);
-
-    this.width = width;
-    this.height = height;
-    this.color = color || this.color;
-  }
-
-  draw() {
-    this.ctx.fillStyle = this.color;
-
-    this.ctx.fillRect(
-      this.transform.position.x,
-      this.transform.position.y,
-      this.width,
-      this.height,
-    );
-  }
 }

@@ -1,11 +1,12 @@
-import init, { Game } from "wasm-test";
-import { Block, Vector2d } from "./vector";
+import init, { Game, Cell } from "wasm-test";
+import { Vector2d } from "./lib";
+import { Block } from "./block";
 import { COLOR_SCHEME } from "./colors";
 
 const canvas = document.getElementById(
   "game-canvas",
 ) as HTMLCanvasElement | null;
-// Debugger
+
 const $mousePosition = document.getElementById("mouse-position");
 const $zoom = document.getElementById("zoom");
 
@@ -13,21 +14,30 @@ if (!canvas) {
   throw new Error("Game canvas undefined");
 }
 
-const wasm = await init();
-const game = Game.new(8);
+const CELL_COUNT = 16;
+const CELL_SIZE = 50;
+const CELL_MARGIN = 1;
 
-const cells = new Uint8Array(wasm.memory.buffer, game.get_array(), 64);
 const C_WIDTH = window.innerWidth;
 const C_HEIGHT = window.innerWidth;
 
-canvas.width = C_WIDTH;
-canvas.height = C_HEIGHT;
+const wasm = await init();
+const game = Game.new(CELL_COUNT);
+
+const board = new Uint8Array(
+  wasm.memory.buffer,
+  game.get_array(),
+  Math.pow(CELL_COUNT, 2),
+);
 
 const ctx = canvas.getContext("2d");
 
 if (!ctx) {
   throw new Error("2D Context not supported from this browser");
 }
+
+canvas.width = C_WIDTH;
+canvas.height = C_HEIGHT;
 
 let zoom = 1;
 let dragStart = new Vector2d(0, 0);
@@ -42,14 +52,14 @@ const render = () => {
   ctx.save();
   ctx.translate(panOffset.x, panOffset.y);
 
-  const blockList = Array.from(cells).map((c, i) => {
+  const blockList = Array.from(board).map((c, i) => {
     return new Block(
-      100 * (i % 8),
-      100 * Math.floor(i / 8),
-      50,
-      50,
+      (CELL_SIZE + CELL_MARGIN) * (i % CELL_COUNT),
+      (CELL_SIZE + CELL_MARGIN) * Math.floor(i / CELL_COUNT),
+      CELL_SIZE,
+      CELL_SIZE,
       ctx,
-      c === 1 ? COLOR_SCHEME.cell.alive : COLOR_SCHEME.cell.dead,
+      c === Cell.Alive ? COLOR_SCHEME.cell.alive : COLOR_SCHEME.cell.dead,
     );
   });
 
