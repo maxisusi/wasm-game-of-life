@@ -1,4 +1,4 @@
-import init, { Game, Cell } from "wasm-test";
+import init, { Game, Cell, Mapper } from "wasm-test";
 import { Vector2d } from "./lib";
 import { Block } from "./block";
 import { COLOR_SCHEME } from "./colors";
@@ -54,8 +54,8 @@ const render = () => {
 
   const blockList = Array.from(board).map((c, i) => {
     return new Block(
-      (CELL_SIZE + CELL_MARGIN) * (i % CELL_COUNT),
       (CELL_SIZE + CELL_MARGIN) * Math.floor(i / CELL_COUNT),
+      (CELL_SIZE + CELL_MARGIN) * (i % CELL_COUNT),
       CELL_SIZE,
       CELL_SIZE,
       ctx,
@@ -90,13 +90,28 @@ canvas.addEventListener("wheel", (event) => {
 });
 
 canvas.addEventListener("mousemove", (event) => {
-  $mousePosition!.innerHTML = `Client X: ${event.clientX} | Client Y: ${event.clientY}`;
+  const { clientX, clientY } = event;
+  const client = new Vector2d(clientX, clientY).sub(panOffset);
+  const normalizedClient = client
+    .div(CELL_SIZE)
+    .inject((x, y) => [Math.floor(x), Math.floor(y)])
+    .inject((x, y) => {
+      if (x > CELL_COUNT || x < 0 || y > CELL_COUNT || y < 0) {
+        return [0, 0];
+      }
+      return [x, y];
+    });
+
+  const map = game.get_index(
+    Mapper.new(normalizedClient.x, normalizedClient.y),
+  );
+
+  console.log(map);
+
+  $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
+
   if (isDragging) {
-    const { clientX, clientY } = event;
-
-    const client = new Vector2d(clientX, clientY).sub(panOffset);
     const offset = client.sub(dragStart);
-
     panOffset = panOffset.add(offset);
 
     render();

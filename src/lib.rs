@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, usize};
 
 use wasm_bindgen::prelude::*;
 
@@ -52,7 +52,11 @@ pub struct Mapper {
     col: usize,
 }
 
+#[wasm_bindgen]
 impl Mapper {
+    pub fn new(x: usize, y: usize) -> Self {
+        Self { row: y, col: x }
+    }
     fn set(&self, row: isize, col: isize) -> Option<Mapper> {
         let row = self.row.checked_add_signed(row)?;
         let col = self.col.checked_add_signed(col)?;

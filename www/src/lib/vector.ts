@@ -12,6 +12,10 @@ export class Vector2d {
     this.y = y;
   }
 
+  inject(fn: (x: number, y: number) => [number, number]): Vector2d {
+    return new Vector2d(...fn(this.x, this.y));
+  }
+
   add(value: Vector2d | number): Vector2d {
     if (value instanceof Vector2d)
       return new Vector2d(this.x + value.x, this.y + value.y);
@@ -34,6 +38,10 @@ export class Vector2d {
     if (value instanceof Vector2d)
       return new Vector2d(this.x / value.x, this.y / value.y);
     else return new Vector2d(this.x / value, this.y / value);
+  }
+
+  abs(): Vector2d {
+    return new Vector2d(Math.abs(this.x), Math.abs(this.y));
   }
 
   magnitude(): number {
