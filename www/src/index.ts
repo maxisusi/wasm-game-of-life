@@ -54,8 +54,8 @@ const render = () => {
 
   const blockList = Array.from(board).map((c, i) => {
     return new Block(
-      (CELL_SIZE + CELL_MARGIN) * Math.floor(i / CELL_COUNT),
       (CELL_SIZE + CELL_MARGIN) * (i % CELL_COUNT),
+      (CELL_SIZE + CELL_MARGIN) * Math.floor(i / CELL_COUNT),
       CELL_SIZE,
       CELL_SIZE,
       ctx,
@@ -73,7 +73,7 @@ const renderGame = () => {
 
   setTimeout(() => {
     requestAnimationFrame(renderGame);
-  }, 1000 / 5);
+  }, 1000 / 1);
 };
 
 renderGame();
@@ -89,6 +89,8 @@ canvas.addEventListener("wheel", (event) => {
   render();
 });
 
+let clientMap = 0;
+
 canvas.addEventListener("mousemove", (event) => {
   const { clientX, clientY } = event;
   const client = new Vector2d(clientX, clientY).sub(panOffset);
@@ -102,11 +104,9 @@ canvas.addEventListener("mousemove", (event) => {
       return [x, y];
     });
 
-  const map = game.get_index(
+  clientMap = game.get_index(
     Mapper.new(normalizedClient.x, normalizedClient.y),
   );
-
-  console.log(map);
 
   $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
 
@@ -128,4 +128,7 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mousedown", (event) => {
   isDragging = true;
   dragStart = new Vector2d(event.clientX, event.clientY).sub(panOffset);
+
+  console.log(clientMap);
+  game.insert_cell(clientMap);
 });

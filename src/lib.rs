@@ -1,6 +1,11 @@
-use std::{fmt::Display, usize};
+use std::{error::Error, fmt::Display, usize};
 
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub enum GameError {
+    UndefinedIndex,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[wasm_bindgen]
@@ -94,6 +99,19 @@ impl Game {
 
     pub fn get_array(&self) -> *const Cell {
         self.board.as_ptr()
+    }
+
+    pub fn insert_cell(&mut self, idx: usize) -> Result<(), GameError> {
+        let selected_cell = self.query(Some(self.get_row_col(idx))).unwrap();
+
+        let selected_cell = if matches!(selected_cell, Cell::Dead) {
+            Cell::Alive
+        } else {
+            Cell::Dead
+        };
+
+        self.mutate(idx, selected_cell);
+        Ok(())
     }
 
     // Returns 0 if the index is out of bounds
