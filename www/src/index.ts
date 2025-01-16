@@ -11,6 +11,10 @@ const $speedRange = document.getElementById(
   "speed-range",
 ) as HTMLInputElement | null;
 
+const $gameSize = document.getElementById(
+  "size-range",
+) as HTMLInputElement | null;
+
 const $pauseButton = document.getElementById(
   "pause-button",
 ) as HTMLButtonElement | null;
@@ -23,11 +27,11 @@ if (!$speedRange) {
   throw new Error("Game controller undefined");
 }
 
-if (!$pauseButton) {
+if (!$pauseButton || !$gameSize) {
   throw new Error("Game controller undefined");
 }
 
-const CELL_COUNT = 16;
+let CELL_COUNT = 16;
 const CELL_SIZE = 50;
 const CELL_MARGIN = 1;
 
@@ -56,11 +60,18 @@ let dragStart = new Vector2d(0, 0);
 let panOffset = new Vector2d(0, 0);
 let isDragging = false;
 let clientMap = 0;
+let isOutofBound = false;
 let gameSpeed = 5;
 let gamePause = false;
 
 $speedRange.addEventListener("input", (event) => {
   gameSpeed = parseInt((event.target as HTMLInputElement).value);
+});
+
+$gameSize.addEventListener("input", (event) => {
+  CELL_COUNT = parseInt((event.target as HTMLInputElement).value);
+  console.log(CELL_COUNT);
+  renderGame();
 });
 
 $pauseButton.addEventListener("click", () => {
@@ -111,8 +122,9 @@ renderGame();
 canvas.addEventListener("mousemove", (event) => {
   const { clientX, clientY } = event;
   const client = new Vector2d(clientX, clientY).sub(panOffset);
+
   const normalizedClient = client
-    .div(CELL_SIZE)
+    .div(CELL_SIZE + CELL_MARGIN)
     .inject((x, y) => [Math.floor(x), Math.floor(y)])
     .inject((x, y) => {
       if (x > CELL_COUNT || x < 0 || y > CELL_COUNT || y < 0) {
@@ -121,6 +133,7 @@ canvas.addEventListener("mousemove", (event) => {
       return [x, y];
     });
 
+  isOutofBound = client.div(CELL_SIZE).x < 0 || client.div(CELL_SIZE).y < 0;
   clientMap = game.get_index(
     Mapper.new(normalizedClient.x, normalizedClient.y),
   );
@@ -143,5 +156,5 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mousedown", (event) => {
   isDragging = true;
   dragStart = new Vector2d(event.clientX, event.clientY).sub(panOffset);
-  game.insert_cell(clientMap);
+  !isOutofBound && game.insert_cell(clientMap);
 });

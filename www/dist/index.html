@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <title></title>
   </head>
   <style>
@@ -10,7 +16,9 @@
       margin: 0;
       overflow: hidden;
     }
-
+    * {
+      font-family: "Roboto";
+    }
     .game-menu {
       position: absolute;
       top: 0;
@@ -25,19 +33,51 @@
       flex-direction: column;
     }
 
-    .speed-controller {
+    button {
+      all: unset;
+      display: flex;
+      justify-content: center;
+      background-color: #ef9f76;
+      border-radius: 8px;
+      padding: 8px;
+      color: white;
+      transition: 200ms all ease-in-out;
+    }
+
+    button:hover {
+      cursor: pointer;
+      background-color: #e5c890;
+    }
+
+    .controller {
       display: flex;
       gap: 8px;
       align-items: center;
       width: 100%;
     }
+
+    .controller > h4 {
+      width: 100px;
+    }
   </style>
   <body>
     <section class="game-menu">
-      <div class="speed-controller">
+      <div class="controller">
         <h4>Speed</h4>
         <input
           id="speed-range"
+          value="5"
+          type="range"
+          min="1"
+          max="40"
+          step="1"
+        />
+      </div>
+
+      <div class="controller">
+        <h4>Game Size</h4>
+        <input
+          id="size-range"
           value="5"
           type="range"
           min="1"
