@@ -11,10 +11,6 @@ const $speedRange = document.getElementById(
   "speed-range",
 ) as HTMLInputElement | null;
 
-const $gameSize = document.getElementById(
-  "size-range",
-) as HTMLInputElement | null;
-
 const $pauseButton = document.getElementById(
   "pause-button",
 ) as HTMLButtonElement | null;
@@ -27,11 +23,11 @@ if (!$speedRange) {
   throw new Error("Game controller undefined");
 }
 
-if (!$pauseButton || !$gameSize) {
+if (!$pauseButton) {
   throw new Error("Game controller undefined");
 }
 
-let CELL_COUNT = 16;
+const CELL_COUNT = 16;
 const CELL_SIZE = 50;
 const CELL_MARGIN = 1;
 
@@ -66,12 +62,6 @@ let gamePause = false;
 
 $speedRange.addEventListener("input", (event) => {
   gameSpeed = parseInt((event.target as HTMLInputElement).value);
-});
-
-$gameSize.addEventListener("input", (event) => {
-  CELL_COUNT = parseInt((event.target as HTMLInputElement).value);
-  console.log(CELL_COUNT);
-  renderGame();
 });
 
 $pauseButton.addEventListener("click", () => {
@@ -133,7 +123,12 @@ canvas.addEventListener("mousemove", (event) => {
       return [x, y];
     });
 
-  isOutofBound = client.div(CELL_SIZE).x < 0 || client.div(CELL_SIZE).y < 0;
+  isOutofBound =
+    client.div(CELL_SIZE).x < 0 ||
+    client.div(CELL_SIZE).y < 0 ||
+    client.div(CELL_SIZE).x > CELL_COUNT ||
+    client.div(CELL_SIZE).y > CELL_COUNT;
+
   clientMap = game.get_index(
     Mapper.new(normalizedClient.x, normalizedClient.y),
   );
