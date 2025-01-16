@@ -7,11 +7,24 @@ const canvas = document.getElementById(
   "game-canvas",
 ) as HTMLCanvasElement | null;
 
-/* const $mousePosition = document.getElementById("mouse-position");
-const $zoom = document.getElementById("zoom"); */
+const $speedRange = document.getElementById(
+  "speed-range",
+) as HTMLInputElement | null;
+
+const $pauseButton = document.getElementById(
+  "pause-button",
+) as HTMLButtonElement | null;
 
 if (!canvas) {
   throw new Error("Game canvas undefined");
+}
+
+if (!$speedRange) {
+  throw new Error("Game controller undefined");
+}
+
+if (!$pauseButton) {
+  throw new Error("Game controller undefined");
 }
 
 const CELL_COUNT = 16;
@@ -39,10 +52,25 @@ if (!ctx) {
 canvas.width = C_WIDTH;
 canvas.height = C_HEIGHT;
 
-let zoom = 1;
 let dragStart = new Vector2d(0, 0);
 let panOffset = new Vector2d(0, 0);
 let isDragging = false;
+let clientMap = 0;
+let gameSpeed = 5;
+let gamePause = false;
+
+$speedRange.addEventListener("input", (event) => {
+  gameSpeed = parseInt((event.target as HTMLInputElement).value);
+});
+
+$pauseButton.addEventListener("click", () => {
+  gamePause = !gamePause;
+  $pauseButton.innerHTML = "Play";
+  if (!gamePause) {
+    $pauseButton.innerHTML = "Paused";
+    renderGame();
+  }
+});
 
 const render = () => {
   // Draw background
@@ -68,28 +96,17 @@ const render = () => {
 };
 
 const renderGame = () => {
+  if (gamePause) return;
+
   game.tick();
   render();
 
   setTimeout(() => {
     requestAnimationFrame(renderGame);
-  }, 1000 / 1);
+  }, 1000 / gameSpeed);
 };
 
 renderGame();
-
-// $zoom!.innerHTML = `${zoom}x`;
-
-canvas.addEventListener("wheel", (event) => {
-  if (event.deltaY <= 0) zoom += 1;
-  else if (zoom > 1) {
-    zoom -= 1;
-  }
-  // $zoom!.innerHTML = `${zoom}x`;
-  render();
-});
-
-let clientMap = 0;
 
 canvas.addEventListener("mousemove", (event) => {
   const { clientX, clientY } = event;
@@ -107,8 +124,6 @@ canvas.addEventListener("mousemove", (event) => {
   clientMap = game.get_index(
     Mapper.new(normalizedClient.x, normalizedClient.y),
   );
-
-  // $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
 
   if (isDragging) {
     const offset = client.sub(dragStart);
@@ -128,7 +143,5 @@ canvas.addEventListener("mouseup", () => {
 canvas.addEventListener("mousedown", (event) => {
   isDragging = true;
   dragStart = new Vector2d(event.clientX, event.clientY).sub(panOffset);
-
-  console.log(clientMap);
   game.insert_cell(clientMap);
 });

@@ -11,24 +11,41 @@
       overflow: hidden;
     }
 
-    #info {
+    .game-menu {
       position: absolute;
       top: 0;
       right: 0;
       height: 100vh;
-      background-color: #f2d5cf;
-      color: white;
+      background-color: #232634;
+      color: #f2d5cf;
       width: 300px;
       padding: 16px;
       display: flex;
       gap: 8px;
       flex-direction: column;
     }
+
+    .speed-controller {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+    }
   </style>
   <body>
-    <section id="info">
-      <!-- <div>Client Position: <span id="mouse-position"></span></div> -->
-      <!-- <div>Zoom: <span id="zoom">NULL</span></div> -->
+    <section class="game-menu">
+      <div class="speed-controller">
+        <h4>Speed</h4>
+        <input
+          id="speed-range"
+          value="5"
+          type="range"
+          min="1"
+          max="40"
+          step="1"
+        />
+      </div>
+      <button id="pause-button">Paused</button>
     </section>
     <canvas height="100%" width="100%" id="game-canvas"></canvas>
     <noscript
