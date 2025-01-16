@@ -7,8 +7,8 @@ const canvas = document.getElementById(
   "game-canvas",
 ) as HTMLCanvasElement | null;
 
-const $mousePosition = document.getElementById("mouse-position");
-const $zoom = document.getElementById("zoom");
+/* const $mousePosition = document.getElementById("mouse-position");
+const $zoom = document.getElementById("zoom"); */
 
 if (!canvas) {
   throw new Error("Game canvas undefined");
@@ -78,14 +78,14 @@ const renderGame = () => {
 
 renderGame();
 
-$zoom!.innerHTML = `${zoom}x`;
+// $zoom!.innerHTML = `${zoom}x`;
 
 canvas.addEventListener("wheel", (event) => {
   if (event.deltaY <= 0) zoom += 1;
   else if (zoom > 1) {
     zoom -= 1;
   }
-  $zoom!.innerHTML = `${zoom}x`;
+  // $zoom!.innerHTML = `${zoom}x`;
   render();
 });
 
@@ -108,7 +108,7 @@ canvas.addEventListener("mousemove", (event) => {
     Mapper.new(normalizedClient.x, normalizedClient.y),
   );
 
-  $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
+  // $mousePosition!.innerHTML = `Client X: ${clientX} | Client Y: ${clientY}`;
 
   if (isDragging) {
     const offset = client.sub(dragStart);

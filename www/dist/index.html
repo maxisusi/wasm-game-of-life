@@ -15,8 +15,10 @@
       position: absolute;
       top: 0;
       right: 0;
-      background-color: white;
-      border-radius: 16px;
+      height: 100vh;
+      background-color: #f2d5cf;
+      color: white;
+      width: 300px;
       padding: 16px;
       display: flex;
       gap: 8px;
@@ -24,13 +26,10 @@
     }
   </style>
   <body>
-    <!-- <button id="tick">Tick</button> -->
-    <!-- <pre id="game-of-life-canvas"></pre> -->
-
-    <div id="info">
-      <div>Client Position: <span id="mouse-position"></span></div>
-      <div>Zoom: <span id="zoom">NULL</span></div>
-    </div>
+    <section id="info">
+      <!-- <div>Client Position: <span id="mouse-position"></span></div> -->
+      <!-- <div>Zoom: <span id="zoom">NULL</span></div> -->
+    </section>
     <canvas height="100%" width="100%" id="game-canvas"></canvas>
     <noscript
       >This page contains webassembly and javascript content, please enable

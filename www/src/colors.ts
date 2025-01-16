@@ -7,7 +7,7 @@ type ColorScheme = {
 };
 
 const CatpuccinThemeFrappe: ColorScheme = {
-  background: "#232634",
+  background: "#292c3c",
   cell: {
     dead: "#303446",
     alive: "#ef9f76",
